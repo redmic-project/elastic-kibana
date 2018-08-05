@@ -11,7 +11,7 @@ deploy-dev:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     SERVICE: ${CI_PROJECT_NAME}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    ELASTIC_USER_PASS: ${DEV_ELASTIC_USER_PASS}
+    ELASTIC_USER_PASS: ${DEV_ELASTIC_ADMIN_PASS}
   services:
     - docker:dind
   script:

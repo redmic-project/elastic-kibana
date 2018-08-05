@@ -6,7 +6,7 @@ services:
     environment:
       SERVER_NAME: kibana.redmic.net
       ELASTICSEARCH_URL: http://elasticsearch:9200
-      ELASTICSEARCH_PASSWORD: "${DEV_ELASTIC_ADMIN_PASS}"
+      ELASTICSEARCH_PASSWORD: "${ELASTIC_USER_PASS}"
       
 networks:
   elastic-net:
