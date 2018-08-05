@@ -9,6 +9,7 @@ deploy-dev:
   variables:
     DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${DEV_SSH_REMOTE}
+    SERVICE: ${CI_PROJECT_NAME}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     ELASTIC_USER_PASS: ${DEV_ELASTIC_USER_PASS}
   services:
