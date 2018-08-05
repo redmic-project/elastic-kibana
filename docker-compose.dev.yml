@@ -7,4 +7,4 @@ services:
     networks:
       - elastic-net
     ports:
-      - ${PORT}:${PORT}
+      - 5601:5601
