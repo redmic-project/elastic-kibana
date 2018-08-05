@@ -1,0 +1,23 @@
+image: docker:stable
+
+stages:
+  - deploy
+
+deploy-dev:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    ELASTIC_USER_PASS: ${DEV_ELASTIC_USER_PASS}
+  services:
+    - docker:dind
+  script:
+    - >
+      deploy.sh COMPOSE_FILE=${COMPOSE_FILE} ELASTIC_USER_PASS=${ELASTIC_USER_PASS}
+  environment:
+    name: dev
+  only:
+    - branches
+  when: manual

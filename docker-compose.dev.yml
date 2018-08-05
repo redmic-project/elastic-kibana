@@ -1,0 +1,10 @@
+version: '3.5'
+
+services:
+  kibana:
+    container_name: kibana
+    restart: on-failure:3
+    networks:
+      - elastic-net
+    ports:
+      - ${PORT}:${PORT}
