@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   kibana:
-    image: docker.elastic.co/kibana/kibana:5.6.10
+    image: docker.elastic.co/kibana/kibana:5.6.5
     ports:
       - 5601:5601
 
