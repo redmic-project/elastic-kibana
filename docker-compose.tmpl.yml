@@ -5,7 +5,7 @@ services:
     image: docker.elastic.co/kibana/kibana:5.6.5
     environment:
       SERVER_NAME: kibana.redmic.net
-      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_URL: http://es-1:9200
       ELASTICSEARCH_PASSWORD: "${ELASTIC_USER_PASS}"
       
 networks:
