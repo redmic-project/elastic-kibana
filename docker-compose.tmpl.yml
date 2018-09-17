@@ -2,15 +2,18 @@ version: '3.5'
 
 services:
   kibana:
-    image: docker.elastic.co/kibana/kibana:5.6.5
-    ports:
-      - 5601:5601
-
+    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
-      SERVER_NAME: kibana.redmic.net
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      ELASTICSEARCH_PASSWORD: ${DEV_ELASTIC_ADMIN_PASS}
-      
+      SERVER_NAME: kibana.${PUBLIC_HOSTNAME}
+      ELASTICSEARCH_URL: http://${ELASTICSEARCH_URL}:${ELASTICSEARCH_PORT}
+      ELASTICSEARCH_PASSWORD: "${ELASTIC_USER_PASS}"
+    networks:
+      - elastic-net
+      - traefik-net
+
 networks:
   elastic-net:
+    external: true
+
+  traefik-net:
     external: true
