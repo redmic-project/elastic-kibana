@@ -2,10 +2,6 @@ version: '3.5'
 
 services:
   kibana:
-    ports:
-      - target: ${PORT}
-        published: ${PORT}
-        mode: host
     deploy:
       mode: replicated
       replicas: 1
@@ -14,6 +10,9 @@ services:
         traefik.docker.network: traefik-net
         traefik.frontend.rule: Host:kibana.${PUBLIC_HOSTNAME}
         traefik.backend: kibana
+      placement:
+        constraints:
+          - node.role == worker
       restart_policy:
         delay: 1m
         window: 2m

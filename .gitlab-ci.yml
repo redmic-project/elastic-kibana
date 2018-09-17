@@ -3,22 +3,54 @@ image: docker:stable
 stages:
   - deploy
 
+variables:
+  IMAGE_NAME: docker.elastic.co/kibana/kibana
+  IMAGE_TAG: '5.6.5'
+
 deploy-dev:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
   variables:
     DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICE: ${CI_PROJECT_NAME}
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     ELASTIC_USER_PASS: ${DEV_ELASTIC_ADMIN_PASS}
+    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
   services:
     - docker:dind
   script:
     - >
-      deploy.sh COMPOSE_FILE=${COMPOSE_FILE} ELASTIC_USER_PASS=${ELASTIC_USER_PASS}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      ELASTIC_USER_PASS=${ELASTIC_USER_PASS} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: dev
+    url: https://kibana.${DEV_PUBLIC_HOSTNAME}
   only:
-    - branches
+    - dev
+  when: manual
+
+deploy-pro:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
+    ELASTIC_USER_PASS: ${PRO_ELASTIC_ADMIN_PASS}
+    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
+  services:
+    - docker:dind
+  script:
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      ELASTIC_USER_PASS=${ELASTIC_USER_PASS} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+  environment:
+    name: pro
+    url: https://kibana.${PRO_PUBLIC_HOSTNAME}
+  only:
+    - master
   when: manual
