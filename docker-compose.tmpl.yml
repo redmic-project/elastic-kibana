@@ -2,17 +2,34 @@ version: '3.5'
 
 services:
   kibana:
-    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    image: docker.elastic.co/kibana/kibana:${IMAGE_TAG:-latest}
     environment:
-      SERVER_NAME: kibana.${PUBLIC_HOSTNAME}
-      ELASTICSEARCH_URL: http://${ELASTICSEARCH_URL}:${ELASTICSEARCH_PORT}
-      ELASTICSEARCH_PASSWORD: "${ELASTIC_USER_PASS}"
+      - SERVER_NAME=kibana.${PUBLIC_HOSTNAME}
+      - ELASTICSEARCH_URL
     networks:
-      - elastic-net
+      - elastic6-net
       - traefik-net
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        traefik.docker.network: traefik-net
+        traefik.frontend.auth.basic.users: ${UI_AUTH}
+        traefik.frontend.rule: Host:kibana.${PUBLIC_HOSTNAME}
+        traefik.backend: kibana
+        traefik.port: "${PORT}"
+      restart_policy:
+        delay: 10s
+        window: 2m
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          memory: 820M
 
 networks:
-  elastic-net:
+  elastic6-net:
     external: true
 
   traefik-net:

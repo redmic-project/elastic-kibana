@@ -1,53 +1,90 @@
-image: docker:stable
-
 stages:
   - deploy
 
-variables:
-  IMAGE_NAME: docker.elastic.co/kibana/kibana
-  IMAGE_TAG: '5.6.5'
+image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
 
-deploy-dev:
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_TAG: '6.5.1'
+  STACK: elastic
+  SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}
+
+services:
+  - docker:dind
+
+deploy-supporting-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
   variables:
-    DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    ELASTIC_USER_PASS: ${DEV_ELASTIC_ADMIN_PASS}
+    ELASTICSEARCH_URL: ${DEV_ELASTICSEARCH_URL}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-  services:
-    - docker:dind
+    UI_AUTH: ${DEV_UI_AUTH}
   script:
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      ELASTIC_USER_PASS=${ELASTIC_USER_PASS} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      deploy.sh IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
+      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} UI_AUTH=${UI_AUTH}
   environment:
     name: dev
     url: https://kibana.${DEV_PUBLIC_HOSTNAME}
   only:
-    - dev
+    - branches
+  except:
+    - master
   when: manual
 
-deploy-pro:
+deploy-stable-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
   variables:
-    DOCKER_DRIVER: overlay2
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
-    ELASTIC_USER_PASS: ${PRO_ELASTIC_ADMIN_PASS}
-    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
-  services:
-    - docker:dind
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    ELASTICSEARCH_URL: ${DEV_ELASTICSEARCH_URL}
+    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
+    UI_AUTH: ${DEV_UI_AUTH}
   script:
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      ELASTIC_USER_PASS=${ELASTIC_USER_PASS} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      deploy.sh IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
+      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} UI_AUTH=${UI_AUTH}
+  environment:
+    name: dev
+    url: https://kibana.${DEV_PUBLIC_HOSTNAME}
+  only:
+    - master
+  when: manual
+
+deploy-supporting-branch-production:
+  stage: deploy
+  variables:
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
+    ELASTICSEARCH_URL: ${PRO_ELASTICSEARCH_URL}
+    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
+    UI_AUTH: ${PRO_UI_AUTH}
+  script:
+    - >
+      deploy.sh IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
+      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} UI_AUTH=${UI_AUTH}
+  environment:
+    name: pro
+    url: https://kibana.${PRO_PUBLIC_HOSTNAME}
+  only:
+    - branches
+  except:
+    - master
+  when: manual
+
+deploy-stable-branch-production:
+  stage: deploy
+  variables:
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
+    ELASTICSEARCH_URL: ${PRO_ELASTICSEARCH_URL}
+    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
+    UI_AUTH: ${PRO_UI_AUTH}
+  script:
+    - >
+      deploy.sh IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
+      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} UI_AUTH=${UI_AUTH}
   environment:
     name: pro
     url: https://kibana.${PRO_PUBLIC_HOSTNAME}

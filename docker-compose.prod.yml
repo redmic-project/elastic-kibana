@@ -3,22 +3,6 @@ version: '3.5'
 services:
   kibana:
     deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-        traefik.port: "${PORT}"
-        traefik.docker.network: traefik-net
-        traefik.frontend.rule: Host:kibana.${PUBLIC_HOSTNAME}
-        traefik.backend: kibana
       placement:
         constraints:
           - node.role == worker
-      restart_policy:
-        delay: 1m
-        window: 2m
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-        reservations:
-          memory: 820M
