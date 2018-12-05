@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   kibana:
-    image: docker.elastic.co/kibana/kibana:${IMAGE_TAG:-latest}
+    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
       - SERVER_NAME=kibana.${PUBLIC_HOSTNAME}
       - ELASTICSEARCH_URL
