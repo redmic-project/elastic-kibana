@@ -40,4 +40,4 @@ networks:
 
 configs:
   logtrail-json:
-    file: ./logtrail.json
+    file: ./config/logtrail.json
