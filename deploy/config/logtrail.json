@@ -17,8 +17,8 @@
 			"fields" : {
 				"mapping" : {
 						"timestamp" : "@timestamp",
-						"hostname" : "container_name",
-						"program": "container_id",
+						"hostname" : "@service_name",
+						"program": "container_name",
 						"message": "log"
 				},
 				"message_format": "{{{log}}}",
