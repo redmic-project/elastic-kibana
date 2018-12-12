@@ -7,16 +7,21 @@ services:
       - SERVER_NAME=kibana.${PUBLIC_HOSTNAME}
       - ELASTICSEARCH_URL
     networks:
-      - elastic6-net
+      - elastic-net
       - traefik-net
     configs:
       - source: logtrail-json
         target: /usr/share/kibana/plugins/logtrail/logtrail.json
+    healthcheck:
+      test: curl --fail --silent http://localhost:${PORT}
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 2m
     deploy:
       mode: replicated
       replicas: 1
       labels:
-        traefik.docker.network: traefik-net
         traefik.frontend.auth.basic.users: ${UI_AUTH}
         traefik.frontend.rule: Host:kibana.${PUBLIC_HOSTNAME}
         traefik.backend: kibana
@@ -29,15 +34,18 @@ services:
           cpus: '0.5'
           memory: 1G
         reservations:
-          memory: 820M
+          memory: 512M
 
 networks:
-  elastic6-net:
+  elastic-net:
+    name: ${ELASTIC_NET_NAME:-elastic6-net}
     external: true
 
   traefik-net:
+    name: ${TRAEFIK_NET_NAME:-traefik-net}
     external: true
 
 configs:
   logtrail-json:
+    name: ${LOGTRAIL_JSON_NAME:-logtrail-json}
     file: ./config/logtrail.json
