@@ -5,7 +5,11 @@ services:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
       - SERVER_NAME=kibana.${PUBLIC_HOSTNAME}
+      - XPACK_SECURITY_ENABLED=false
+      - XPACK_SPACES_ENABLED=false
       - ELASTICSEARCH_URL
+      - ELASTICSEARCH_USERNAME
+      - ELASTICSEARCH_PASSWORD
     networks:
       - elastic-net
       - traefik-net
@@ -13,7 +17,7 @@ services:
       - source: logtrail-json
         target: /usr/share/kibana/plugins/logtrail/logtrail.json
     healthcheck:
-      test: curl --fail --silent http://localhost:${PORT}
+      test: curl --silent http://localhost:${PORT}
       interval: 30s
       timeout: 10s
       retries: 3
