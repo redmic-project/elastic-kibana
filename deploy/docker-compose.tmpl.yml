@@ -34,7 +34,6 @@ services:
       mode: replicated
       replicas: 1
       labels:
-        traefik.frontend.auth.basic.users: ${UI_AUTH}
         traefik.frontend.rule: Host:kibana.${PUBLIC_HOSTNAME}
         traefik.backend: kibana
         traefik.port: "${PORT}"
