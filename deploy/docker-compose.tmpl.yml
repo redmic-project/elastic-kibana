@@ -15,6 +15,7 @@ services:
       - XPACK_APM_ENABLED=false
       - XPACK_INFRA_ENABLED=false
       - XPACK_LOGSTASH_ENABLED=false
+      - NODE_OPTIONS=--max_old_space_size=8192
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_USERNAME
       - ELASTICSEARCH_PASSWORD
@@ -27,7 +28,7 @@ services:
     healthcheck:
       test: curl --silent http://localhost:${PORT}
       interval: 30s
-      timeout: 1m
+      timeout: 10m
       retries: 3
       start_period: 2m
     deploy:
@@ -42,7 +43,7 @@ services:
         window: 2m
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '1'
           memory: 1G
         reservations:
           memory: 512M
