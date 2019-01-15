@@ -7,6 +7,14 @@ services:
       - SERVER_NAME=kibana.${PUBLIC_HOSTNAME}
       - XPACK_SECURITY_ENABLED=false
       - XPACK_SPACES_ENABLED=false
+      - XPACK_CANVAS_ENABLED=false
+      - XPACK_MONITORING_ENABLED=false
+      - XPACK_GRAPH_ENABLED=false
+      - XPACK_ML_ENABLED=false
+      - XPACK_WATCHER_ENABLED=false
+      - XPACK_APM_ENABLED=false
+      - XPACK_INFRA_ENABLED=false
+      - XPACK_LOGSTASH_ENABLED=false
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_USERNAME
       - ELASTICSEARCH_PASSWORD
@@ -19,9 +27,9 @@ services:
     healthcheck:
       test: curl --silent http://localhost:${PORT}
       interval: 30s
-      timeout: 10s
+      timeout: 1m
       retries: 3
-      start_period: 20m
+      start_period: 2m
     deploy:
       mode: replicated
       replicas: 1
