@@ -5,13 +5,11 @@ services:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
       - SERVER_NAME=kibana.${PUBLIC_HOSTNAME}
+      - TIMELION_ENABLED=false
       - XPACK_SECURITY_ENABLED=false
-      - XPACK_SPACES_ENABLED=false
       - XPACK_CANVAS_ENABLED=false
-      - XPACK_MONITORING_ENABLED=false
       - XPACK_GRAPH_ENABLED=false
       - XPACK_ML_ENABLED=false
-      - XPACK_WATCHER_ENABLED=false
       - XPACK_APM_ENABLED=false
       - XPACK_INFRA_ENABLED=false
       - XPACK_LOGSTASH_ENABLED=false
@@ -24,6 +22,8 @@ services:
     configs:
       - source: logtrail-json
         target: /usr/share/kibana/plugins/logtrail/logtrail.json
+      - source: kibana-yml
+        target: /usr/share/kibana/config/kibana.yml
     healthcheck:
       test: curl --silent http://localhost:${PORT}
       interval: 30s
@@ -42,7 +42,7 @@ services:
         window: 2m
       resources:
         limits:
-          cpus: '2'
+          cpus: '1'
           memory: 3G
         reservations:
           memory: 512M
@@ -60,3 +60,7 @@ configs:
   logtrail-json:
     name: ${LOGTRAIL_JSON_NAME:-logtrail-json}
     file: ./config/logtrail.json
+
+  kibana-yml:
+    name: ${KIBANA_YML_NAME:-kibana-yml}
+    file: ./config/kibana.yml
