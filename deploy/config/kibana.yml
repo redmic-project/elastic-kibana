@@ -3,3 +3,4 @@ xpack.monitoring.ui.container.elasticsearch.enabled: true
 xpack.watcher.enabled: false
 xpack.spaces.enabled: false
 searchguard.auth.anonymous_auth_enabled: true
+searchguard.readonly_mode.roles: ["sg_anonymous_backendrole"]
