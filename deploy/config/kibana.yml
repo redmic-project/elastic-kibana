@@ -4,4 +4,4 @@ xpack.watcher.enabled: false
 xpack.spaces.enabled: false
 searchguard.basicauth.forbidden_usernames: ["kibanaserver"]
 searchguard.auth.anonymous_auth_enabled: true
-searchguard.readonly_mode.roles: ["sg_anonymous_backendrole"]
+searchguard.readonly_mode.roles: ["sg_anonymous_role"]
