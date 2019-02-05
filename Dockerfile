@@ -14,7 +14,7 @@ RUN ./bin/kibana-plugin install --no-optimize ${LOGTRAIL_URL}
 
 ARG	KBN_POLAR_URL="https://github.com/dlumbrer/kbn_polar/releases/download/6.3.X-1/kbn_polar-6.tar.gz"
 
-RUN mkdir -p plugins\kbn_polar && \
-	cd plugins\kbn_polar && \
+RUN mkdir -p plugins/kbn_polar && \
+	cd plugins/kbn_polar && \
 	curl -L ${KBN_POLAR_URL} --output kbn_polar-6.tar.gz && \
 	tar xfvz kbn_polar-6.tar.gz
