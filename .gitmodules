@@ -1,0 +1,5 @@
+[submodule "modules/kibana-datepicker-plugin"]
+	path = modules/kibana-datepicker-plugin
+	url = https://github.com/C3SL/kibana-datepicker-plugin.git
+	branch = master
+	ignore = dirty
