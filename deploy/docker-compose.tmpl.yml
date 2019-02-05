@@ -15,8 +15,12 @@ services:
       - XPACK_LOGSTASH_ENABLED=false
       - XPACK_MONITORING_ENABLED=false
       - ELASTICSEARCH_URL
+<<<<<<< Updated upstream
       - ELASTICSEARCH_USERNAME
       - ELASTICSEARCH_PASSWORD
+=======
+      - VEGA_ENABLEEXTERNALURLS=true
+>>>>>>> Stashed changes
     networks:
       - elastic-net
       - traefik-net
@@ -61,7 +65,13 @@ configs:
   logtrail-json:
     name: ${LOGTRAIL_JSON_NAME:-logtrail-json}
     file: ./config/logtrail.json
+<<<<<<< Updated upstream
 
   kibana-yml:
     name: ${KIBANA_YML_NAME:-kibana-yml}
     file: ./config/kibana.yml
+=======
+  kibana-yml:
+    name: ${KIBANA_YML_NAME:-kibana-yml}
+    file: ./config/kibana.yml
+>>>>>>> Stashed changes
