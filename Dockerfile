@@ -12,9 +12,9 @@ ARG LOGTRAIL_URL="https://github.com/sivasamyk/logtrail/releases/download/v0.1.3
 
 RUN ./bin/kibana-plugin install --no-optimize ${LOGTRAIL_URL}
 
-ARG	KBN_POLAR_URL="https://github.com/dlumbrer/kbn_polar/releases/download/6.3.X-1/kbn_polar-6.tar.gz"
+ARG KBN_POLAR_URL="https://github.com/dlumbrer/kbn_polar/releases/download/6.3.X-1/kbn_polar-6.tar.gz"
 
 RUN mkdir -p plugins/kbn_polar && \
-	cd plugins/kbn_polar && \
-	curl -L ${KBN_POLAR_URL} --output kbn_polar-6.tar.gz && \
-	tar xfvz kbn_polar-6.tar.gz
+	curl -L ${KBN_POLAR_URL} -o kbn_polar.tar.gz && \
+	tar xfvz kbn_polar.tar.gz -C plugins/kbn_polar && \
+	rm kbn_polar.tar.gz
