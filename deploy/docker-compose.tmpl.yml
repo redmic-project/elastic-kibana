@@ -5,8 +5,9 @@ services:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
       - SERVER_NAME=kibana.${PUBLIC_HOSTNAME}
+      - TIMELION_ENABLED=true
       - XPACK_SECURITY_ENABLED=false
-      - XPACK_CANVAS_ENABLED=false
+      - XPACK_CANVAS_ENABLED=true
       - XPACK_GRAPH_ENABLED=false
       - XPACK_ML_ENABLED=false
       - XPACK_APM_ENABLED=false

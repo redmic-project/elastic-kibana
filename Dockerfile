@@ -1,8 +1,9 @@
 ARG NODE_IMAGE_TAG="11-alpine"
+ARG KIBANA_IMAGE_TAG="6.5.4"
 
 FROM node:${NODE_IMAGE_TAG} AS npm-build
 
-ARG KIBANA_IMAGE_TAG="6.5.4"
+ARG KIBANA_IMAGE_TAG
 
 COPY modules/ /modules/
 
