@@ -1,6 +1,15 @@
-ARG PARENT_IMAGE_TAG="6.5.4"
+ARG NODE_IMAGE_TAG="11-alpine"
+ARG KIBANA_IMAGE_TAG="6.5.4"
 
-FROM docker.elastic.co/kibana/kibana:${PARENT_IMAGE_TAG}
+FROM node:${NODE_IMAGE_TAG} AS npm-build
+
+COPY modules/ /modules/
+
+WORKDIR /modules/kibana-datepicker-plugin
+
+RUN npm version --no-git-tag-version ${KIBANA_IMAGE_TAG}
+
+FROM docker.elastic.co/kibana/kibana:${KIBANA_IMAGE_TAG}
 
 LABEL maintainer="info@redmic.es"
 
@@ -12,4 +21,4 @@ ARG LOGTRAIL_URL="https://github.com/sivasamyk/logtrail/releases/download/v0.1.3
 
 RUN ./bin/kibana-plugin install --no-optimize ${LOGTRAIL_URL}
 
-COPY modules/ plugins/
+COPY --from=npm-build /modules/ plugins/
