@@ -7,9 +7,11 @@ ARG KIBANA_IMAGE_TAG
 
 COPY modules/ /modules/
 
-WORKDIR /modules/kibana-datepicker-plugin
+WORKDIR /modules/kibana-time-plugin
 
-RUN npm --no-git-tag-version version ${KIBANA_IMAGE_TAG}
+RUN npm install -g bower && \
+	bower --allow-root install && \
+	npm --no-git-tag-version version ${KIBANA_IMAGE_TAG}
 
 FROM docker.elastic.co/kibana/kibana:${KIBANA_IMAGE_TAG}
 
