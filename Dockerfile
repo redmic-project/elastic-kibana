@@ -7,7 +7,7 @@ COPY modules/ /modules/
 
 WORKDIR /modules/kibana-datepicker-plugin
 
-RUN npm version --no-git-tag-version ${KIBANA_IMAGE_TAG}
+RUN npm --no-git-tag-version version ${KIBANA_IMAGE_TAG}
 
 FROM docker.elastic.co/kibana/kibana:${KIBANA_IMAGE_TAG}
 
