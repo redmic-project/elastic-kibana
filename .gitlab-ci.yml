@@ -7,6 +7,8 @@ image: docker:stable
 
 variables:
   DOCKER_DRIVER: overlay2
+  NODE_IMAGE_TAG: '11-alpine'
+  KIBANA_IMAGE_TAG: '6.5.4'
   STACK: elastic
   SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}
   IMAGE_NAME: ${CI_REGISTRY_IMAGE}
@@ -17,6 +19,8 @@ services:
 
 docker-build-commit-non-master-branches:
   stage: package
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
   tags:
     - oagdev
   only:
@@ -25,18 +29,24 @@ docker-build-commit-non-master-branches:
     - master
   script:
     - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}-latest .
+    - >
+      docker build --build-arg NODE_IMAGE_TAG=${NODE_IMAGE_TAG} --build-arg KIBANA_IMAGE_TAG=${KIBANA_IMAGE_TAG}
+      -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}-latest .
     - docker push ${CI_REGISTRY_IMAGE}
 
 docker-build-commit-master-branch:
   stage: package
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
   tags:
     - oagdev
   only:
     - master
   script:
     - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:latest .
+    - >
+      docker build --build-arg NODE_IMAGE_TAG=${NODE_IMAGE_TAG} --build-arg KIBANA_IMAGE_TAG=${KIBANA_IMAGE_TAG}
+      -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:latest .
     - docker push ${CI_REGISTRY_IMAGE}
 
 docker-tag-already-built-image:
@@ -72,17 +82,19 @@ container-scanning:
 
 deploy-supporting-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     ELASTICSEARCH_URL: ${DEV_ELASTICSEARCH_URL}
+    ELASTICSEARCH_USERNAME: ${DEV_ELASTICSEARCH_USERNAME}
+    ELASTICSEARCH_PASSWORD: ${DEV_ELASTICSEARCH_PASSWORD}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-    UI_AUTH: ${DEV_UI_AUTH}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      ELASTICSEARCH_URL=${ELASTICSEARCH_URL} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} UI_AUTH=${UI_AUTH}
+      ELASTICSEARCH_URL=${ELASTICSEARCH_URL} ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: dev
     url: https://kibana.${DEV_PUBLIC_HOSTNAME}
@@ -94,17 +106,19 @@ deploy-supporting-branch-develop:
 
 deploy-stable-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     ELASTICSEARCH_URL: ${DEV_ELASTICSEARCH_URL}
+    ELASTICSEARCH_USERNAME: ${DEV_ELASTICSEARCH_USERNAME}
+    ELASTICSEARCH_PASSWORD: ${DEV_ELASTICSEARCH_PASSWORD}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-    UI_AUTH: ${DEV_UI_AUTH}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      ELASTICSEARCH_URL=${ELASTICSEARCH_URL} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} UI_AUTH=${UI_AUTH}
+      ELASTICSEARCH_URL=${ELASTICSEARCH_URL} ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: dev
     url: https://kibana.${DEV_PUBLIC_HOSTNAME}
@@ -114,17 +128,19 @@ deploy-stable-branch-develop:
 
 deploy-supporting-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     ELASTICSEARCH_URL: ${PRO_ELASTICSEARCH_URL}
+    ELASTICSEARCH_USERNAME: ${PRO_ELASTICSEARCH_USERNAME}
+    ELASTICSEARCH_PASSWORD: ${PRO_ELASTICSEARCH_PASSWORD}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
-    UI_AUTH: ${PRO_UI_AUTH}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      ELASTICSEARCH_URL=${ELASTICSEARCH_URL} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} UI_AUTH=${UI_AUTH}
+      ELASTICSEARCH_URL=${ELASTICSEARCH_URL} ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: pro
     url: https://kibana.${PRO_PUBLIC_HOSTNAME}
@@ -136,17 +152,19 @@ deploy-supporting-branch-production:
 
 deploy-stable-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     ELASTICSEARCH_URL: ${PRO_ELASTICSEARCH_URL}
+    ELASTICSEARCH_USERNAME: ${PRO_ELASTICSEARCH_USERNAME}
+    ELASTICSEARCH_PASSWORD: ${PRO_ELASTICSEARCH_PASSWORD}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
-    UI_AUTH: ${PRO_UI_AUTH}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      ELASTICSEARCH_URL=${ELASTICSEARCH_URL} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} UI_AUTH=${UI_AUTH}
+      ELASTICSEARCH_URL=${ELASTICSEARCH_URL} ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: pro
     url: https://kibana.${PRO_PUBLIC_HOSTNAME}

@@ -1,9 +1,28 @@
-ARG PARENT_IMAGE_TAG="6.5.0"
+ARG NODE_IMAGE_TAG="11-alpine"
+ARG KIBANA_IMAGE_TAG="6.5.4"
 
-FROM docker.elastic.co/kibana/kibana:${PARENT_IMAGE_TAG}
+FROM node:${NODE_IMAGE_TAG} AS npm-build
+
+ARG KIBANA_IMAGE_TAG
+
+COPY modules/ /modules/
+
+WORKDIR /modules/kibana-time-plugin
+
+RUN npm install -g bower && \
+	bower --allow-root install && \
+	npm --no-git-tag-version version ${KIBANA_IMAGE_TAG}
+
+FROM docker.elastic.co/kibana/kibana:${KIBANA_IMAGE_TAG}
 
 LABEL maintainer="info@redmic.es"
 
-ARG LOGTRAIL_URL="https://github.com/sivasamyk/logtrail/releases/download/v0.1.30/logtrail-6.5.0-0.1.30.zip"
+ARG SEARCH_GUARD_URL="https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-kibana-plugin/6.5.4-17/search-guard-kibana-plugin-6.5.4-17.zip"
 
-RUN ./bin/kibana-plugin install ${LOGTRAIL_URL}
+RUN ./bin/kibana-plugin install --no-optimize ${SEARCH_GUARD_URL}
+
+ARG LOGTRAIL_URL="https://github.com/sivasamyk/logtrail/releases/download/v0.1.30/logtrail-6.5.4-0.1.30.zip"
+
+RUN ./bin/kibana-plugin install --no-optimize ${LOGTRAIL_URL}
+
+COPY --from=npm-build /modules/ plugins/

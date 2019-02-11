@@ -5,24 +5,37 @@ services:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
       - SERVER_NAME=kibana.${PUBLIC_HOSTNAME}
+      - TIMELION_ENABLED=true
+      - XPACK_SECURITY_ENABLED=false
+      - XPACK_CANVAS_ENABLED=true
+      - XPACK_GRAPH_ENABLED=false
+      - XPACK_ML_ENABLED=false
+      - XPACK_APM_ENABLED=false
+      - XPACK_INFRA_ENABLED=false
+      - XPACK_LOGSTASH_ENABLED=false
+      - XPACK_MONITORING_ENABLED=false
       - ELASTICSEARCH_URL
+      - ELASTICSEARCH_USERNAME
+      - ELASTICSEARCH_PASSWORD
+      - VEGA_ENABLEEXTERNALURLS=true
     networks:
       - elastic-net
       - traefik-net
     configs:
       - source: logtrail-json
         target: /usr/share/kibana/plugins/logtrail/logtrail.json
+      - source: kibana-yml
+        target: /usr/share/kibana/config/kibana.yml
     healthcheck:
-      test: curl --fail --silent http://localhost:${PORT}
+      test: curl --silent http://localhost:${PORT}
       interval: 30s
-      timeout: 10s
+      timeout: 1m
       retries: 3
       start_period: 2m
     deploy:
       mode: replicated
       replicas: 1
       labels:
-        traefik.frontend.auth.basic.users: ${UI_AUTH}
         traefik.frontend.rule: Host:kibana.${PUBLIC_HOSTNAME}
         traefik.backend: kibana
         traefik.port: "${PORT}"
@@ -31,8 +44,8 @@ services:
         window: 2m
       resources:
         limits:
-          cpus: '0.5'
-          memory: 1G
+          cpus: '1'
+          memory: 3G
         reservations:
           memory: 512M
 
@@ -49,3 +62,8 @@ configs:
   logtrail-json:
     name: ${LOGTRAIL_JSON_NAME:-logtrail-json}
     file: ./config/logtrail.json
+
+  kibana-yml:
+    name: ${KIBANA_YML_NAME:-kibana-yml}
+    file: ./config/kibana.yml
+
