@@ -32,13 +32,15 @@ services:
       timeout: 1m
       retries: 3
       start_period: 2m
+    logging:
+      driver: json-file
     deploy:
       mode: replicated
       replicas: 1
       labels:
         traefik.frontend.rule: Host:kibana.${PUBLIC_HOSTNAME}
         traefik.backend: kibana
-        traefik.port: "${PORT}"
+        traefik.port: '${PORT}'
       restart_policy:
         delay: 10s
         window: 2m
