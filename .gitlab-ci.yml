@@ -5,6 +5,9 @@ include:
   - project: 'redmic-project/gitlab-ci-templates'
     ref: master
     file: '/deployment.yml'
+  - project: 'redmic-project/gitlab-ci-templates'
+    ref: master
+    file: '/deployment-custom-image.yml'
 
 stages:
   - package
@@ -12,20 +15,15 @@ stages:
   - deploy
 
 variables:
-  NODE_IMAGE_TAG: '11-alpine'
-  KIBANA_IMAGE_TAG: '6.5.4'
-  DOCKER_BUILD_ARGS: --build-arg NODE_IMAGE_TAG=${NODE_IMAGE_TAG} --build-arg KIBANA_IMAGE_TAG=${KIBANA_IMAGE_TAG}
-  STACK: elastic
+  PROJECT_PARENT_NAME: elastic
 
-.docker-operations-build:
+.docker-operations:
   variables:
     GIT_SUBMODULE_STRATEGY: normal
 
 .deploy:
-  script:
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      ELASTICSEARCH_URL=${ELASTICSEARCH_URL} ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
-      ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+  variables:
+    STACK: ${PROJECT_PARENT_NAME}
+    SERVICES_TO_CHECK: ${PROJECT_PARENT_NAME}_${CI_PROJECT_NAME}
   environment:
     url: https://${CI_PROJECT_NAME}.${PUBLIC_HOSTNAME}
