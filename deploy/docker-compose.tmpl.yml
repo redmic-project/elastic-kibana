@@ -2,25 +2,34 @@ version: '3.5'
 
 services:
   kibana:
-    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    image: ${IMAGE_NAME:-registry.gitlab.com/redmic-project/elastic/kibana}:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: ${DOCKERFILE:-Dockerfile}
+      args:
+        NODE_IMAGE_TAG:
+        BOWER_VERSION:
+        KIBANA_IMAGE_TAG:
+        SEARCH_GUARD_URL:
+        LOGTRAIL_URL:
     environment:
-      - SERVER_NAME=kibana.${PUBLIC_HOSTNAME}
-      - TIMELION_ENABLED=true
-      - XPACK_SECURITY_ENABLED=false
-      - XPACK_CANVAS_ENABLED=true
-      - XPACK_GRAPH_ENABLED=false
-      - XPACK_ML_ENABLED=false
-      - XPACK_APM_ENABLED=false
-      - XPACK_INFRA_ENABLED=false
-      - XPACK_LOGSTASH_ENABLED=false
-      - XPACK_MONITORING_ENABLED=false
-      - ELASTICSEARCH_URL
-      - ELASTICSEARCH_USERNAME
-      - ELASTICSEARCH_PASSWORD
-      - VEGA_ENABLEEXTERNALURLS=true
+      SERVER_NAME: kibana.${PUBLIC_HOSTNAME}
+      TIMELION_ENABLED:
+      XPACK_SECURITY_ENABLED:
+      XPACK_CANVAS_ENABLED:
+      XPACK_GRAPH_ENABLED:
+      XPACK_ML_ENABLED:
+      XPACK_APM_ENABLED:
+      XPACK_INFRA_ENABLED:
+      XPACK_LOGSTASH_ENABLED:
+      XPACK_MONITORING_ENABLED:
+      ELASTICSEARCH_URL:
+      ELASTICSEARCH_USERNAME:
+      ELASTICSEARCH_PASSWORD:
+      VEGA_ENABLEEXTERNALURLS:
     networks:
-      - elastic-net
-      - traefik-net
+      elastic-net:
+      traefik-net:
     configs:
       - source: logtrail-json
         target: /usr/share/kibana/plugins/logtrail/logtrail.json
@@ -28,36 +37,38 @@ services:
         target: /usr/share/kibana/config/kibana.yml
     healthcheck:
       test: curl --silent http://localhost:${PORT}
-      interval: 30s
-      timeout: 1m
-      retries: 3
-      start_period: 2m
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-1m}
+      retries: ${HEALTHCHECK_RETRIES:-10}
+      start_period: ${HEALTHCHECK_START_PERIOD:-2m}
     logging:
       driver: json-file
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: ${REPLICAS:-1}
       labels:
         traefik.frontend.rule: Host:kibana.${PUBLIC_HOSTNAME}
         traefik.backend: kibana
         traefik.port: '${PORT}'
       restart_policy:
-        delay: 10s
-        window: 2m
+        delay: ${RESTART_DELAY:-10s}
       resources:
         limits:
-          cpus: '1'
-          memory: 3G
+          cpus: '${RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-3G}
         reservations:
-          memory: 512M
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-512M}
 
 networks:
   elastic-net:
     name: ${ELASTIC_NET_NAME:-elastic6-net}
+    driver: ${ELASTIC_NET_DRIVER:-overlay}
     external: true
 
   traefik-net:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
+    driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
 
 configs:
@@ -68,4 +79,3 @@ configs:
   kibana-yml:
     name: ${KIBANA_YML_NAME:-kibana-yml}
     file: ./config/kibana.yml
-
