@@ -21,8 +21,8 @@ ARG LOGTRAIL_URL
 
 LABEL maintainer="info@redmic.es"
 
-RUN ./bin/kibana-plugin install --no-optimize "${SEARCH_GUARD_URL}"
+RUN ./bin/kibana-plugin install --no-optimize ${SEARCH_GUARD_URL}
 
-RUN ./bin/kibana-plugin install --no-optimize "${LOGTRAIL_URL}"
+RUN ./bin/kibana-plugin install --no-optimize ${LOGTRAIL_URL}
 
 COPY --from=npm-build /modules/ plugins/
