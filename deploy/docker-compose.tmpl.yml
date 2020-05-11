@@ -8,6 +8,7 @@ services:
       dockerfile: ${DOCKERFILE:-Dockerfile}
       args:
         NODE_IMAGE_TAG:
+        BOWER_VERSION:
         KIBANA_IMAGE_TAG:
         SEARCH_GUARD_URL:
         LOGTRAIL_URL:
