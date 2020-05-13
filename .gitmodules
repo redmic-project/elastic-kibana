@@ -1,5 +1,5 @@
 [submodule "modules/kibana-time-plugin"]
 	path = modules/kibana-time-plugin
 	url = https://github.com/nreese/kibana-time-plugin.git
-	branch = master
+	branch = 6.6
 	ignore = dirty
