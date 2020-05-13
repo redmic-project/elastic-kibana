@@ -21,8 +21,8 @@ ARG LOGTRAIL_URL="https://github.com/sivasamyk/logtrail/releases/download/v0.1.3
 
 LABEL maintainer="info@redmic.es"
 
-RUN ./bin/kibana-plugin install --no-optimize ${SEARCH_GUARD_URL}
+RUN ./bin/kibana-plugin install ${SEARCH_GUARD_URL}
 
-RUN ./bin/kibana-plugin install --no-optimize ${LOGTRAIL_URL}
+RUN ./bin/kibana-plugin install ${LOGTRAIL_URL}
 
 COPY --from=npm-build /modules/ plugins/
