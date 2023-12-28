@@ -3,15 +3,6 @@ version: '3.5'
 services:
   kibana:
     image: ${IMAGE_NAME:-registry.gitlab.com/redmic-project/elastic/kibana}:${IMAGE_TAG:-latest}
-    build:
-      context: ..
-      dockerfile: ${DOCKERFILE:-Dockerfile}
-      args:
-        NODE_IMAGE_TAG:
-        BOWER_VERSION:
-        KIBANA_IMAGE_TAG:
-        SEARCH_GUARD_URL:
-        LOGTRAIL_URL:
     environment:
       SERVER_NAME: kibana.${PUBLIC_HOSTNAME}
       TIMELION_ENABLED:
