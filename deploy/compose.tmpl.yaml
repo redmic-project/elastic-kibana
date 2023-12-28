@@ -2,7 +2,7 @@ services:
   kibana:
     image: ${IMAGE_NAME:-registry.gitlab.com/redmic-project/elastic/kibana}:${IMAGE_TAG:-latest}
     environment:
-      SERVER_NAME: kibana.${PUBLIC_HOSTNAME}
+      SERVER_NAME: ${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}
       TIMELION_ENABLED:
       XPACK_SECURITY_ENABLED:
       XPACK_CANVAS_ENABLED:
@@ -30,17 +30,18 @@ services:
       timeout: ${HEALTHCHECK_TIMEOUT:-1m}
       retries: ${HEALTHCHECK_RETRIES:-10}
       start_period: ${HEALTHCHECK_START_PERIOD:-2m}
-    logging:
-      driver: json-file
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
-      labels:
-        traefik.frontend.rule: Host:kibana.${PUBLIC_HOSTNAME}
-        traefik.backend: kibana
-        traefik.port: '${PORT}'
       restart_policy:
         delay: ${RESTART_DELAY:-10s}
+      update_config:
+        delay: ${UPDATE_DELAY:-1m}
+      labels:
+        traefik.enable: ${TRAEFIK_ENABLE:-true}
+        traefik.http.routers.kibana.entrypoints: ${TRAEFIK_ENTRYPOINT:-http}
+        traefik.http.routers.kibana.rule: Host(`${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
+        traefik.http.services.kibana.loadbalancer.server.port: ${PORT}
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-1}'
