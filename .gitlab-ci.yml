@@ -1,13 +1,13 @@
 include:
   - project: 'redmic-project/gitlab-ci-templates'
     ref: master
-    file: '/packaging.yml'
+    file: '/packaging-docker/docker-build.yml'
   - project: 'redmic-project/gitlab-ci-templates'
     ref: master
-    file: '/deployment.yml'
+    file: '/deployment-service/docker-deploy.yml'
   - project: 'redmic-project/gitlab-ci-templates'
     ref: master
-    file: '/deployment-custom-image.yml'
+    file: '/deployment-service/custom-image.yml'
 
 stages:
   - pre-package
@@ -15,16 +15,10 @@ stages:
   - post-package
   - deploy
 
-variables:
-  PROJECT_PARENT_NAME: elastic
-
-.docker-operations:
+.docker-build:
   variables:
     GIT_SUBMODULE_STRATEGY: normal
 
 .deploy:
   variables:
-    STACK: ${PROJECT_PARENT_NAME}
-    SERVICES_TO_CHECK: ${PROJECT_PARENT_NAME}_${CI_PROJECT_NAME}
-  environment:
-    url: https://${CI_PROJECT_NAME}.${PUBLIC_HOSTNAME}
+    STACK: elastic
