@@ -1,23 +1,10 @@
 include:
   - project: 'redmic-project/gitlab-ci-templates'
     ref: master
-    file: '/packaging-docker/docker-build.yml'
-  - project: 'redmic-project/gitlab-ci-templates'
-    ref: master
     file: '/deployment-service/docker-deploy.yml'
-  - project: 'redmic-project/gitlab-ci-templates'
-    ref: master
-    file: '/deployment-service/custom-image.yml'
 
 stages:
-  - pre-package
-  - package
-  - post-package
   - deploy
-
-.docker-build:
-  variables:
-    GIT_SUBMODULE_STRATEGY: normal
 
 .deploy:
   variables:

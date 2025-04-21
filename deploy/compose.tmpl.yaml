@@ -1,33 +1,21 @@
 services:
   kibana:
-    image: ${IMAGE_NAME:-registry.gitlab.com/redmic-project/elastic/kibana}:${IMAGE_TAG:-latest}
+    image: ${IMAGE_NAME:-docker.elastic.co/kibana/kibana}:${IMAGE_TAG:-latest}
     environment:
       SERVER_NAME: ${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}
-      TIMELION_ENABLED:
-      XPACK_SECURITY_ENABLED:
-      XPACK_CANVAS_ENABLED:
-      XPACK_GRAPH_ENABLED:
-      XPACK_ML_ENABLED:
-      XPACK_APM_ENABLED:
-      XPACK_INFRA_ENABLED:
-      XPACK_LOGSTASH_ENABLED:
-      XPACK_MONITORING_ENABLED:
-      ELASTICSEARCH_URL:
+      ELASTICSEARCH_HOSTS:
       ELASTICSEARCH_USERNAME:
       ELASTICSEARCH_PASSWORD:
-      VEGA_ENABLEEXTERNALURLS:
+      ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES: ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH:-ca/ca.crt}
     networks:
       elastic-net:
       traefik-net:
-    configs:
-      - source: logtrail-json
-        target: /usr/share/kibana/plugins/logtrail/logtrail.json
-      - source: kibana-yml
-        target: /usr/share/kibana/config/kibana.yml
+    volumes:
+      - cert-vol:${ES_CERT_PATH}
     healthcheck:
-      test: curl --silent http://localhost:${PORT}
-      interval: ${HEALTHCHECK_INTERVAL:-30s}
-      timeout: ${HEALTHCHECK_TIMEOUT:-1m}
+      test: curl -s -o /dev/null -I -w "%{http_code}" http://localhost:${PORT} | grep -q "^${HEALTH_STATUS_CODE:-302}$$"
+      interval: ${HEALTHCHECK_INTERVAL:-1m}
+      timeout: ${HEALTHCHECK_TIMEOUT:-15s}
       retries: ${HEALTHCHECK_RETRIES:-10}
       start_period: ${HEALTHCHECK_START_PERIOD:-2m}
     deploy:
@@ -36,7 +24,7 @@ services:
       restart_policy:
         delay: ${RESTART_DELAY:-10s}
       update_config:
-        delay: ${UPDATE_DELAY:-1m}
+        delay: ${UPDATE_DELAY:-2m}
       labels:
         traefik.enable: ${TRAEFIK_ENABLE:-true}
         traefik.http.routers.kibana.entrypoints: ${TRAEFIK_ENTRYPOINT:-http}
@@ -52,7 +40,7 @@ services:
 
 networks:
   elastic-net:
-    name: ${ELASTIC_NET_NAME:-elastic6-net}
+    name: ${ELASTIC_NET_NAME:-elastic-net}
     driver: ${ELASTIC_NET_DRIVER:-overlay}
     external: true
 
@@ -61,11 +49,7 @@ networks:
     driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
 
-configs:
-  logtrail-json:
-    name: ${LOGTRAIL_JSON_NAME:-logtrail-json}
-    file: ./config/logtrail.json
-
-  kibana-yml:
-    name: ${KIBANA_YML_NAME:-kibana-yml}
-    file: ./config/kibana.yml
+volumes:
+  cert-vol:
+    name: ${CERT_VOL_NAME:-elasticsearch-cert-vol}
+    external: true
