@@ -36,10 +36,10 @@ services:
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-1}'
-          memory: ${RESOURCES_LIMITS_MEMORY:-3G}
+          memory: ${RESOURCES_LIMITS_MEMORY:-2G}
         reservations:
           cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${RESOURCES_RESERVATIONS_MEMORY:-512M}
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-800M}
 
 networks:
   elastic-net:
