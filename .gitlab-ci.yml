@@ -1,24 +1,11 @@
 include:
   - project: 'redmic-project/gitlab-ci-templates'
-    ref: master
-    file: '/packaging-docker/docker-build.yml'
+    ref: main
+    file: '/test/auto.yml'
   - project: 'redmic-project/gitlab-ci-templates'
-    ref: master
-    file: '/deployment-service/docker-deploy.yml'
-  - project: 'redmic-project/gitlab-ci-templates'
-    ref: master
-    file: '/deployment-service/custom-image.yml'
+    ref: main
+    file: '/deploy/service/docker-deploy.yml'
 
-stages:
-  - pre-package
-  - package
-  - post-package
-  - deploy
-
-.docker-build:
+.docker-deploy:
   variables:
-    GIT_SUBMODULE_STRATEGY: normal
-
-.deploy:
-  variables:
-    STACK: elastic
+    STACK: elastic8
