@@ -41,6 +41,7 @@ services:
 
 networks:
   elasticsearch-net:
+    name: ${ELASTICSEARCH_NET_NAME:-elastic8_elasticsearch-net}
     external: true
 
   traefik-net:
