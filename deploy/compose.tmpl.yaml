@@ -1,0 +1,54 @@
+services:
+  kibana:
+    image: ${IMAGE_NAME:-docker.elastic.co/kibana/kibana}:${IMAGE_TAG:-latest}
+    environment:
+      SERVER_NAME: ${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+      SERVER_PORT:
+      SERVER_PUBLICBASEURL: https://${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+      ELASTICSEARCH_HOSTS:
+      ELASTICSEARCH_USERNAME:
+      ELASTICSEARCH_PASSWORD:
+      ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES: ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH:-ca/ca.crt}
+    networks:
+      elasticsearch-net:
+      traefik-net:
+    volumes:
+      - elasticsearch-cert-vol:${ES_CERT_PATH}
+    healthcheck:
+      test: curl -s -o /dev/null -I -w "%{http_code}" http://localhost:${SERVER_PORT} | grep -q "^${HEALTH_STATUS_CODE:-302}$$"
+      interval: ${HEALTHCHECK_INTERVAL:-1m}
+      timeout: ${HEALTHCHECK_TIMEOUT:-15s}
+      retries: ${HEALTHCHECK_RETRIES:-10}
+      start_period: ${HEALTHCHECK_START_PERIOD:-2m}
+    stop_grace_period: ${STOP_GRACE_PERIOD:-1m}
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        delay: ${RESTART_DELAY:-10s}
+      labels:
+        traefik.enable: ${TRAEFIK_ENABLE:-true}
+        traefik.http.routers.kibana.entrypoints: ${TRAEFIK_ENTRYPOINT:-http}
+        traefik.http.routers.kibana.rule: Host(`${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
+        traefik.http.services.kibana.loadbalancer.server.port: ${SERVER_PORT}
+      resources:
+        limits:
+          cpus: '${RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-2G}
+        reservations:
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-800M}
+
+networks:
+  elasticsearch-net:
+    name: ${STACK}_${ELASTICSEARCH_NET_NAME:-elasticsearch-net}
+    external: true
+
+  traefik-net:
+    name: ${TRAEFIK_NET_NAME:-traefik-net}
+    external: true
+
+volumes:
+  elasticsearch-cert-vol:
+    name: ${STACK}_${ELASTICSEARCH_CERT_VOL_NAME:-elasticsearch-cert-vol}
+    external: true
