@@ -41,7 +41,7 @@ services:
 
 networks:
   elasticsearch-net:
-    name: ${ELASTICSEARCH_NET_NAME:-elastic8_elasticsearch-net}
+    name: ${ELASTICSEARCH_NET_NAME:-${STACK}_elasticsearch-net}
     external: true
 
   traefik-net:
@@ -50,4 +50,5 @@ networks:
 
 volumes:
   elasticsearch-cert-vol:
+    name: ${ELASTICSEARCH_CERT_VOL_NAME:-${STACK}_elasticsearch-cert-vol}
     external: true
